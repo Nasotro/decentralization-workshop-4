@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Simple Tor network implemenation",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "test": "jest --runInBand",
     "start": "ts-node src/start.ts"
@@ -11,7 +12,9 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

@@ -528,17 +528,19 @@ describe("Onion Routing", () => {
     afterAll(async () => {
       await closeAllServers(servers);
     });
-
+    console.log("Sending message from 0 to 1");
     it("User 0 can say Hello World! to user 1 - 4 pt", async () => {
+      console.log("Sending message from 0 to 1");
       await sendMessage(BASE_USER_PORT + 0, "Hello World!", 1);
-
+      console.log("Message sent");
       const receivedMessage = await getLastReceivedMessage(BASE_USER_PORT + 1);
-
+      console.log("Received message", receivedMessage);
       expect(receivedMessage).toBe("Hello World!");
-
+      console.log("Message received");
       const lastSentMessage = await getLastSentMessage(BASE_USER_PORT + 0);
-
+      console.log("Last sent message", lastSentMessage);
       expect(lastSentMessage).toBe("Hello World!");
+      console.log("Last sent message checked");
     });
 
     it("The circuit from 0 to 1 is respected - 1 pt", async () => {
