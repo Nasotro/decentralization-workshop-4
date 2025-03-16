@@ -60,28 +60,33 @@ export async function simpleOnionRouter(nodeId: number) {
   onionRouter.post("/message", async (req, res) => {
     const { message } = req.body;
     lastReceivedEncryptedMessage = message;
-
+    
     // Decrypt the outer layer
     if (strPrvKey === null) {
       res.status(500).send("Private key is not available");
       return;
     }
-    const prvKey = await importPrvKey(strPrvKey);
-    const rsaEncryptedSymmKey = message.slice(0, 392);
-    const cipherText = message.slice(392);
-    const symKey = await rsaDecrypt(rsaEncryptedSymmKey, prvKey);
+    console.log(`Onion router ${nodeId} received message: ${message}`);
+
+    // const prvKey = await importPrvKey(strPrvKey);
+    const rsaEncryptedSymmKey = message.slice(0, 344);
+    const cipherText = message.slice(344);
+    const symKey = await rsaDecrypt(rsaEncryptedSymmKey, privateKey);
     const decryptedMessage = await symDecrypt(symKey, cipherText);
-    lastReceivedDecryptedMessage = decryptedMessage;
+
+    lastReceivedDecryptedMessage = decryptedMessage.slice(10);
 
     // Discover the next destination
-    const nextDestination = parseInt(decryptedMessage.slice(0, 10));
-    lastMessageDestination = nextDestination;
+    lastMessageDestination = parseInt(decryptedMessage.slice(0, 10), 10);
+
+    
+    console.log(`Onion router ${nodeId} forwarding message to ${lastMessageDestination}`);
 
     // Forward the message to the next node or user
-    if (nextDestination >= BASE_ONION_ROUTER_PORT && nextDestination < BASE_ONION_ROUTER_PORT + 10) {
-      await axios.post(`http://localhost:${nextDestination}/message`, { message: decryptedMessage.slice(10) });
+    if (lastMessageDestination >= BASE_ONION_ROUTER_PORT && lastMessageDestination < BASE_ONION_ROUTER_PORT + 10) {
+      await axios.post(`http://localhost:${lastMessageDestination}/message`, { message: decryptedMessage.slice(10) });
     } else {
-      await axios.post(`http://localhost:${nextDestination}/message`, { message: decryptedMessage.slice(10) });
+      await axios.post(`http://localhost:${lastMessageDestination}/message`, { message: decryptedMessage.slice(10) });
     }
 
     res.sendStatus(200);

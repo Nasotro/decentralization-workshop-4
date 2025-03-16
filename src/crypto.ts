@@ -12,14 +12,14 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 // Function to convert Base64 string to ArrayBuffer
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
   var buff = Buffer.from(base64, "base64");
-  return buff.buffer.slice(buff.byteOffset, buff.byteOffset + buff.byteLength);
+  return buff.buffer.slice(buff.byteOffset, buff.byteOffset + buff.byteLength) as ArrayBuffer;
 }
 
 // ################
 // ### RSA keys ###
 // ################
 
-// Generates a pair of private / public RSA keys
+// Generates a pair of private / pubest ceuqic RSA keys
 type GenerateRsaKeyPair = {
   publicKey: webcrypto.CryptoKey;
   privateKey: webcrypto.CryptoKey;
@@ -97,7 +97,7 @@ export async function rsaEncrypt(
   strPublicKey: string
 ): Promise<string> {
   const publicKey = await importPubKey(strPublicKey);
-  const data = new TextEncoder().encode(b64Data).buffer;
+  const data = base64ToArrayBuffer(b64Data);
   const encryptedData = await webcrypto.subtle.encrypt(
     {
       name: "RSA-OAEP",
@@ -121,7 +121,7 @@ export async function rsaDecrypt(
     privateKey,
     encryptedData
   );
-  return new TextDecoder().decode(decryptedData);
+  return arrayBufferToBase64(decryptedData);
 }
 
 // ######################
@@ -168,7 +168,7 @@ export async function symEncrypt(
   data: string
 ): Promise<string> {
   const iv = webcrypto.getRandomValues(new Uint8Array(16));
-  const encodedData = new TextEncoder().encode(data).buffer;
+  const encodedData = new TextEncoder().encode(data);
   const encryptedData = await webcrypto.subtle.encrypt(
     {
       name: "AES-CBC",

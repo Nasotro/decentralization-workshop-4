@@ -21,6 +21,7 @@ import {
   symEncrypt,
 } from "../../src/crypto";
 const { validateEncryption } = require("./utils");
+import { log, error } from "console";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -46,6 +47,7 @@ async function sendMessage(
   message: string,
   destinationUserId: number
 ) {
+  // log("Sending message", message, "from", userPort, "to", destinationUserId);
   await fetch(`http://localhost:${userPort}/sendMessage`, {
     method: "POST",
     headers: {
@@ -530,17 +532,17 @@ describe("Onion Routing", () => {
     });
     console.log("Sending message from 0 to 1");
     it("User 0 can say Hello World! to user 1 - 4 pt", async () => {
-      console.log("Sending message from 0 to 1");
+      log("Sending message from 0 to 1");
       await sendMessage(BASE_USER_PORT + 0, "Hello World!", 1);
-      console.log("Message sent");
+      log("Message sent");
       const receivedMessage = await getLastReceivedMessage(BASE_USER_PORT + 1);
-      console.log("Received message", receivedMessage);
+      log("Received message", receivedMessage);
       expect(receivedMessage).toBe("Hello World!");
-      console.log("Message received");
+      log("Message received");
       const lastSentMessage = await getLastSentMessage(BASE_USER_PORT + 0);
-      console.log("Last sent message", lastSentMessage);
+      log("Last sent message", lastSentMessage);
       expect(lastSentMessage).toBe("Hello World!");
-      console.log("Last sent message checked");
+      log("Last sent message checked");
     });
 
     it("The circuit from 0 to 1 is respected - 1 pt", async () => {
